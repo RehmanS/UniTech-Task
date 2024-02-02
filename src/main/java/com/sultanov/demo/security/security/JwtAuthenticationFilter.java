@@ -27,23 +27,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
-            String jwtToken = extractJwtFromRequest(request);
-            log.info("--filter1");
-            if (StringUtils.hasText(jwtToken) && jwtTokenProvider.validateToken(jwtToken)) {
-                log.info("--filter2");
-                //Long id = jwtTokenProvider.getUserIdFromJwt(jwtToken);
+            String jwtToken = extractJwtFromRequest(request); 
+            if (StringUtils.hasText(jwtToken) && jwtTokenProvider.validateToken(jwtToken)) {       
                 String pin = jwtTokenProvider.getUserIdFromJwt(jwtToken);
-                log.info("--filter3");
-                //UserDetails user = userDetailsService.loadUserById(id);
                 UserDetails user = userDetailsService.loadUserByPin(pin);
-                log.info("--filter4");
-                log.info("--filter--name:" + user.getUsername());
                 if (user != null) {
-                    // Specifies that the user wants to authenticate using a username and password
                     UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-                    // Bridge between servlet classes and Spring classes.
                     auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    // SecurityContext is used to store the details of the currently authenticated user
                     SecurityContextHolder.getContext().setAuthentication(auth);
                 }
             }
